@@ -6,6 +6,7 @@ const app = express();
 
 // Express Middleware and Body Parser
 app.use(express.json());
+app.use(cors());
 
 const posts = [];
 
