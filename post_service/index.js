@@ -10,7 +10,7 @@ app.use(express.json());
 const posts = [];
 
 app.get('/posts', (req, res) => {
-	res.status(200).json(posts);
+	res.status(200).send(posts);
 });
 
 app.post('/posts', (req, res) => {
@@ -28,4 +28,4 @@ app.post('/posts', (req, res) => {
 
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, () => console.log(`post service listening on PORT ${PORT}`));
+app.listen(PORT, () => console.log(`POST SERVICE LISTENING ON PORT ${PORT}`));
