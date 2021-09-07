@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { postServiceUrl } from 'api/urls';
 
+import CreateComment from 'pages/CreateComment';
+
 const ListPost = () => {
 	const [posts, setPosts] = useState({});
 
@@ -10,6 +12,7 @@ const ListPost = () => {
 			const res = await axios.get(`${postServiceUrl}/posts`);
 
 			setPosts(res.data);
+			console.log(res.data);
 		})();
 	}, []);
 
@@ -21,6 +24,7 @@ const ListPost = () => {
 				style={{ width: '30%', marginBottom: '20px' }}>
 				<div className='card-body'>
 					<h3>{post.title}</h3>
+					<CreateComment postId={post.id} />
 				</div>
 			</div>
 		);
