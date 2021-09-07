@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const { randomBytes } = require('crypto');
+const axios = require('axios');
+
 const app = express();
 
 app.use(express.json());
@@ -8,23 +10,53 @@ app.use(cors());
 
 const commentsByPostId = {};
 
+const EVENTBUS_SERVICE = 'http://locahost:4005/events';
+
+app.post('/events', (req, res) => {
+	console.log('Received Events', req.body.type);
+
+	res.send({});
+});
+
 app.get('/posts/:id/comments', (req, res) => {
 	res.status(200).send(commentsByPostId[req.params.id] || null);
 });
 
-app.post('/posts/:id/comments', (req, res) => {
-	const commentId = randomBytes(4).toString('hex');
+app.post('/posts/:id/comments', async (req, res) => {
+	try {
+		const commentId = randomBytes(4).toString('hex');
 
-	const { content } = req.body;
+		const { content } = req.body;
 
-	// Check if Post exists
-	const comments = commentsByPostId[req.params.id] || [];
+		const postId = req.params.id;
 
-	comments.push({ id: commentId, content });
+		// Check if Post exists
+		const comments = commentsByPostId[postId] || [];
 
-	commentsByPostId[req.params.id] = comments;
+		comments.push({ id: commentId, content });
 
-	res.status(201).send(comments);
+		commentsByPostId[postId] = comments;
+
+		const eventObj = {
+			type: 'CommentCreated',
+			data: {
+				id: commentId,
+				content,
+				postId: postId,
+			},
+		};
+
+		await axios
+			.post(`${EVENTBUS_SERVICE}`, eventObj)
+			.catch((err) => console.log(err.message));
+
+		return res.status(201).send(comments);
+	} catch (err) {
+		return res.status(500).send({
+			status: false,
+			error: err.message,
+		});
+	}
 });
 
 const PORT = process.env.PORT || 4001;

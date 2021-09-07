@@ -8,16 +8,25 @@ app.use(express.json());
 
 const postServiceEvents = 'http://localhost:4000/events';
 const commentServiceEvents = 'http://localhost:4001/events';
-const queryService = 'http://localhost:4002/events';
+const queryServiceEvents = 'http://localhost:4002/events';
 
-app.post('/events', (request, response) => {
+app.post('/events', async (request, response) => {
 	const event = request.body;
 
-	axios.post(`${postServiceEvents}`, event);
-	axios.post(`${commentServiceEvents}`, event);
-	axios.post(`${queryService}`, event);
+	console.log(event);
 
-	response.send({ status: 'OK' });
+	try {
+		axios.post(`${postServiceEvents}`, event);
+		axios.post(`${commentServiceEvents}`, event);
+		axios.post(`${queryServiceEvents}`, event);
+
+		response.send({ status: 'OK' });
+	} catch (err) {
+		return response.status(500).send({
+			status: false,
+			error: err.message,
+		});
+	}
 });
 
 const PORT = process.env.PORT || 4005;
