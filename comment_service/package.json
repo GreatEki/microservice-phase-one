@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"comment_service": "nodemon index.js"
+		"comment-service": "nodemon index.js"
 	},
 	"keywords": [],
 	"author": "",
