@@ -6,9 +6,9 @@ const app = express();
 
 app.use(express.json());
 
-const postServiceEvents = 'http://localhost:4000/events';
-const commentServiceEvents = 'http://localhost:4001/events';
-const queryServiceEvents = 'http://localhost:4002/events';
+const postServiceEvents = 'http://127.0.0.1:4000/events';
+const commentServiceEvents = 'http://127.0.0.1:4001/events';
+const queryServiceEvents = 'http://127.0.0.1:4002/events';
 
 app.post('/events', async (request, response) => {
 	const event = request.body;
@@ -16,9 +16,15 @@ app.post('/events', async (request, response) => {
 	console.log(event);
 
 	try {
-		axios.post(`${postServiceEvents}`, event);
-		axios.post(`${commentServiceEvents}`, event);
-		axios.post(`${queryServiceEvents}`, event);
+		await axios
+			.post(`${postServiceEvents}`, event)
+			.catch((err) => console.log(err.message));
+		await axios
+			.post(`${commentServiceEvents}`, event)
+			.catch((err) => console.log(err.message));
+		await axios
+			.post(`${queryServiceEvents}`, event)
+			.catch((err) => console.log(err.message));
 
 		response.send({ status: 'OK' });
 	} catch (err) {

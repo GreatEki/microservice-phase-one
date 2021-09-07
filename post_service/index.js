@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(cors());
 
 const posts = {};
-const EVENTBUS_SERVICE = 'http://locahost:4005/events';
+const EVENTBUS_SERVICE = 'http://127.0.0.1:4005/events';
 
 app.post('/events', (req, res) => {
 	console.log('Received Events', req.body.type);
@@ -24,6 +24,7 @@ app.get('/posts', async (req, res) => {
 
 app.post('/posts', async (req, res) => {
 	try {
+		// Create postId for incoming post.
 		const id = randomBytes(4).toString('hex');
 
 		const { title } = req.body;
@@ -33,16 +34,16 @@ app.post('/posts', async (req, res) => {
 			title,
 		};
 
+		// Prepare payload for Event Bus
 		const eventObj = {
 			type: 'PostCreated',
 			data: posts[id],
 		};
 
+		// Emit Event to Event Bus
 		await axios
 			.post(`${EVENTBUS_SERVICE}`, eventObj)
 			.catch((err) => console.log(err.message));
-
-		return res.status(201).send(posts[id]);
 	} catch (err) {
 		return res.status(500).send({
 			status: 'false',

@@ -10,7 +10,7 @@ app.use(cors());
 
 const commentsByPostId = {};
 
-const EVENTBUS_SERVICE = 'http://locahost:4005/events';
+const EVENTBUS_SERVICE = 'http://127.0.0.1:4005/events';
 
 app.post('/events', (req, res) => {
 	console.log('Received Events', req.body.type);
@@ -24,6 +24,7 @@ app.get('/posts/:id/comments', (req, res) => {
 
 app.post('/posts/:id/comments', async (req, res) => {
 	try {
+		// Create Comment Id for incoming comment
 		const commentId = randomBytes(4).toString('hex');
 
 		const { content } = req.body;
@@ -37,6 +38,7 @@ app.post('/posts/:id/comments', async (req, res) => {
 
 		commentsByPostId[postId] = comments;
 
+		// Prepare payload for Event Bus
 		const eventObj = {
 			type: 'CommentCreated',
 			data: {
@@ -46,6 +48,7 @@ app.post('/posts/:id/comments', async (req, res) => {
 			},
 		};
 
+		// Emit Event to Event Bus
 		await axios
 			.post(`${EVENTBUS_SERVICE}`, eventObj)
 			.catch((err) => console.log(err.message));
