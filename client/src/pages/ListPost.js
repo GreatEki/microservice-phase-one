@@ -3,6 +3,7 @@ import axios from 'axios';
 import { postServiceUrl } from 'api/urls';
 
 import CreateComment from 'pages/CreateComment';
+import ListComments from './ListComments';
 
 const ListPost = () => {
 	const [posts, setPosts] = useState({});
@@ -24,6 +25,7 @@ const ListPost = () => {
 				style={{ width: '30%', marginBottom: '20px' }}>
 				<div className='card-body'>
 					<h3>{post.title}</h3>
+					<ListComments postId={post.id} />
 					<CreateComment postId={post.id} />
 				</div>
 			</div>
