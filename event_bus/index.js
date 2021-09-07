@@ -9,6 +9,7 @@ app.use(express.json());
 const postServiceEvents = 'http://127.0.0.1:4000/events';
 const commentServiceEvents = 'http://127.0.0.1:4001/events';
 const queryServiceEvents = 'http://127.0.0.1:4002/events';
+const moderationServiceEvents = 'http://127.0.0.1:4003/events';
 
 app.post('/events', async (request, response) => {
 	const event = request.body;
