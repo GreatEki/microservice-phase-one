@@ -12,10 +12,36 @@ const commentsByPostId = {};
 
 const EVENTBUS_SERVICE = 'http://127.0.0.1:4005/events';
 
-app.post('/events', (req, res) => {
-	console.log('Received Events', req.body.type);
+app.post('/events', async (req, res) => {
+	const { type, data } = req.body;
 
-	res.send({});
+	if (type === 'CommentModerated') {
+		const { id, postId, status, content } = data;
+
+		const comments = commentsByPostId[postId];
+
+		const theComment = comments.find((comment) => comment.id === id);
+
+		// Update the status with the new status coming from  the moderation service
+		theComment.status = status;
+
+		const eventObj = {
+			type: 'CommentUpdated',
+			data: {
+				id,
+				postId,
+				status,
+				content,
+			},
+		};
+
+		await axios.post(EVENTBUS_SERVICE, eventObj).catch((err) =>
+			res.send({
+				status: false,
+				error: err.message,
+			})
+		);
+	}
 });
 
 app.get('/posts/:id/comments', (req, res) => {
@@ -34,7 +60,7 @@ app.post('/posts/:id/comments', async (req, res) => {
 		// Check if Post exists
 		const comments = commentsByPostId[postId] || [];
 
-		comments.push({ id: commentId, content });
+		comments.push({ id: commentId, content, status: 'pending' });
 
 		commentsByPostId[postId] = comments;
 
@@ -45,6 +71,7 @@ app.post('/posts/:id/comments', async (req, res) => {
 				id: commentId,
 				content,
 				postId: postId,
+				status: 'pending',
 			},
 		};
 

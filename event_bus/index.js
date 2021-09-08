@@ -26,6 +26,9 @@ app.post('/events', async (request, response) => {
 		await axios
 			.post(`${queryServiceEvents}`, event)
 			.catch((err) => console.log(err.message));
+		await axios
+			.post(`${moderationServiceEvents}`, event)
+			.catch((err) => console.log(err.message));
 
 		response.send({ status: 'OK' });
 	} catch (err) {
