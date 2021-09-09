@@ -33,6 +33,7 @@ const CreateComment = (props) => {
 						onChange={(e) => setContent(e.currentTarget.value)}
 					/>
 				</div>
+				<br />
 				<button className='btn btn-primary'> Send </button>
 			</form>
 		</div>

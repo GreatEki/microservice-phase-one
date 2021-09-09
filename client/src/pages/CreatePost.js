@@ -12,7 +12,9 @@ const CreatePost = () => {
 			title,
 		};
 
-		await axios.post(`${postServiceUrl}/posts`, payload);
+		const res = await axios.post(`${postServiceUrl}/posts`, payload);
+
+		console.log(res);
 
 		setTitle('');
 	};

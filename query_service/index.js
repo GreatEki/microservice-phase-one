@@ -1,10 +1,28 @@
 const express = require('express');
-const cors = require('cors');
+// const cors = require('cors');
 
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+// app.use(cors());
+app.use((req, res, next) => {
+	//Allow Access from different origins
+	res.header('Access-Control-Allow-Origin', '*');
+
+	//Allow Access for Different Headers
+	res.header(
+		'Access-Control-Allow-Headers',
+		'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+	);
+
+	//Allow Access for the following request methods
+	if (req.method === 'OPTIONS') {
+		res.header('Access-Control-Allow-Methods', 'POST, PUT, PATCH, GET, DELETE');
+		return res.status(200).json({});
+	}
+
+	next();
+});
 
 const posts = {};
 

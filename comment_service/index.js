@@ -1,48 +1,35 @@
 const express = require('express');
-const cors = require('cors');
+// const cors = require('cors');
 const { randomBytes } = require('crypto');
 const axios = require('axios');
 
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+// app.use(cors());
+
+app.use((req, res, next) => {
+	//Allow Access from different origins
+	res.header('Access-Control-Allow-Origin', '*');
+
+	//Allow Access for Different Headers
+	res.header(
+		'Access-Control-Allow-Headers',
+		'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+	);
+
+	//Allow Access for the following request methods
+	if (req.method === 'OPTIONS') {
+		res.header('Access-Control-Allow-Methods', 'POST, PUT, PATCH, GET, DELETE');
+		return res.status(200).json({});
+	}
+
+	next();
+});
 
 const commentsByPostId = {};
 
 const EVENTBUS_SERVICE = 'http://127.0.0.1:4005/events';
-
-app.post('/events', async (req, res) => {
-	const { type, data } = req.body;
-
-	if (type === 'CommentModerated') {
-		const { id, postId, status, content } = data;
-
-		const comments = commentsByPostId[postId];
-
-		const theComment = comments.find((comment) => comment.id === id);
-
-		// Update the status with the new status coming from  the moderation service
-		theComment.status = status;
-
-		const eventObj = {
-			type: 'CommentUpdated',
-			data: {
-				id,
-				postId,
-				status,
-				content,
-			},
-		};
-
-		await axios.post(EVENTBUS_SERVICE, eventObj).catch((err) =>
-			res.send({
-				status: false,
-				error: err.message,
-			})
-		);
-	}
-});
 
 app.get('/posts/:id/comments', (req, res) => {
 	res.status(200).send(commentsByPostId[req.params.id] || null);
@@ -76,16 +63,46 @@ app.post('/posts/:id/comments', async (req, res) => {
 		};
 
 		// Emit Event to Event Bus
-		await axios
-			.post(`${EVENTBUS_SERVICE}`, eventObj)
-			.catch((err) => console.log(err.message));
+		await axios.post(`${EVENTBUS_SERVICE}`, eventObj);
 
-		return res.status(201).send(comments);
+		res.status(201).send(comments);
 	} catch (err) {
 		return res.status(500).send({
 			status: false,
 			error: err.message,
 		});
+	}
+});
+
+// Event Listener Handler
+app.post('/events', async (req, res) => {
+	console.log('Event Received', req.body.type);
+
+	const { type, data } = req.body;
+
+	if (type === 'CommentModerated') {
+		const { id, postId, status, content } = data;
+
+		const comments = commentsByPostId[postId];
+
+		const theComment = comments.find((comment) => comment.id === id);
+
+		// Update the status with the new status coming from  the moderation service
+		theComment.status = status;
+
+		const eventObj = {
+			type: 'CommentUpdated',
+			data: {
+				id,
+				postId,
+				status,
+				content,
+			},
+		};
+
+		await axios.post(`${EVENTBUS_SERVICE}`, eventObj);
+
+		res.send({});
 	}
 });
 

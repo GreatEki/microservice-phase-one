@@ -12,14 +12,35 @@ const ListComments = (props) => {
 				`${commentsServiceUrl}/posts/${postId}/comments`
 			);
 
-			console.log(res);
-
 			setComments(res.data);
 		})();
 	}, [postId]);
 
 	const renderComments = comments.map((comment) => {
-		return <li> {comment.content} </li>;
+		let content;
+
+		switch (comment.status) {
+			case 'approved': {
+				content = comment.content;
+				break;
+			}
+
+			case 'pending': {
+				content = 'This comment is awaiting moderation';
+				break;
+			}
+
+			case 'rejected': {
+				content = ' This comment has been rejected';
+				break;
+			}
+
+			default: {
+				content = 'This comment is awaiting moderation';
+			}
+		}
+
+		return <li> {content} </li>;
 	});
 
 	return <ul> {renderComments} </ul>;

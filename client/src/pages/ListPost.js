@@ -13,7 +13,7 @@ const ListPost = () => {
 			const res = await axios.get(`${postServiceUrl}/posts`);
 
 			setPosts(res.data);
-			console.log(res.data);
+			// console.log(res.data);
 		})();
 	}, []);
 
