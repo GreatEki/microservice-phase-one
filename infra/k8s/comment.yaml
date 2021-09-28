@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: comment
+spec: 
+  conatainers:
+    - name: comment
+    image: ekeneDockerImage/comment_service
